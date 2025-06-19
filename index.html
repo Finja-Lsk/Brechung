@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Brechungssimulation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      margin-top: 20px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin-top: 20px;
+    }
+    input {
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Brechungssimulation</h1>
+
+  <label>Einfallswinkel (°): <input type="number" id="angleIn" value="30" /></label>
+  <label>n1: <input type="number" id="n1" value="1" step="0.01" /></label>
+  <label>n2: <input type="number" id="n2" value="1.5" step="0.01" /></label>
+  <br />
+  <button onclick="draw()">Simulieren</button>
+
+  <canvas id="canvas" width="600" height="400"></canvas>
+
+  <script>
+    function draw() {
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const angleInDeg = parseFloat(document.getElementById("angleIn").value);
+      const n1 = parseFloat(document.getElementById("n1").value);
+      const n2 = parseFloat(document.getElementById("n2").value);
+
+      const angleInRad = angleInDeg * Math.PI / 180;
+
+      // Berechnung des gebrochenen Winkels mit Snellius
+      const sinOut = n1 / n2 * Math.sin(angleInRad);
+      const angleOutRad = sinOut <= 1 ? Math.asin(sinOut) : null; // Totalreflexion
+
+      // Mittelpunkt
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+
+      // Trennlinie
+      ctx.strokeStyle = "#000";
+      ctx.beginPath();
+      ctx.moveTo(0, cy);
+      ctx.lineTo(canvas.width, cy);
+      ctx.stroke();
+
+      // Einfallender Strahl
+      ctx.strokeStyle = "blue";
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx - 200 * Math.sin(angleInRad), cy - 200 * Math.cos(angleInRad));
+      ctx.stroke();
+
+      // Gebrochener oder reflektierter Strahl
+      ctx.strokeStyle = angleOutRad !== null ? "red" : "orange";
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+
+      if (angleOutRad !== null) {
+        // Gebrochener Strahl
+        ctx.lineTo(cx + 200 * Math.sin(angleOutRad), cy + 200 * Math.cos(angleOutRad));
+      } else {
+        // Totalreflexion (Reflexion)
+        ctx.lineTo(cx - 200 * Math.sin(angleInRad), cy + 200 * Math.cos(angleInRad));
+      }
+
+      ctx.stroke();
+    }
+
+    draw(); // erste Darstellung
+  </script>
+</body>
+</html>
